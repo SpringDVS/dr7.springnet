@@ -1,0 +1,74 @@
+<?php 
+
+/*
+ * +----------+--------------+------+-----+---------+----------------+
+| Field    | Type         | Null | Key | Default | Extra          |
++----------+--------------+------+-----+---------+----------------+
+| certid   | mediumint(9) | NO   | PRI | NULL    | auto_increment |
+| keyid    | varchar(32)  | NO   | UNI | NULL    |                |
+| uidname  | varchar(255) | NO   |     | NULL    |                |
+| uidemail | varchar(255) | NO   |     | NULL    |                |
+| sigs     | text         | YES  |     | NULL    |                |
+| armor    | text         | NO   |     | NULL    |                |
+| owned    | tinyint(1)   | NO   |     | 0       |                |
++----------+--------------+------+-----+---------+----------------+
+
+ */
+function springnet_schema() {
+	
+	$schema['sn_certificates'] = array(
+		'description' => 'SpringNet certificate keyring',
+		'fields' => array(
+			'certid' => array(
+				'description' => 'Internal keyring ID',
+				'type' => 'serial',
+				'unsigned' => true,
+				'not null' => true,
+			),
+			'keyid' => array(
+					'description' => 'The long key ID',
+					'type' => 'varchar',
+					'length' => 32,
+					'not null' => true,
+			),
+			'uidname' => array(
+					'description' => 'The uid name tag',
+					'type' => 'varchar',
+					'length' => 255,
+					'not null' => true,
+			),
+			'uidemail' => array(
+					'description' => 'The uid email tag',
+					'type' => 'varchar',
+					'length' => 255,
+					'not null' => true,
+			),
+			'sigs' => array(
+					'description' => 'The long key id of sigs delim by comma',
+					'type' => 'text',
+					'not null' => false,
+			),
+			'armor' => array(
+					'description' => 'The ASCII armor of the key',
+					'type' => 'text',
+					'not null' => true,
+			),
+			'owned' => array(
+					'description' => 'Whether node owns this key',
+					'type' => 'int',
+					'length' => 'tiny',
+					'not null' => true,
+			)
+		),
+
+		'unique_keys' => array(
+			'keyid' => 'keyid'	
+		),
+
+		'primary_key' => array(
+			'certid'
+		)
+	);
+	
+	return $schema;
+}

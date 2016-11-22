@@ -1,0 +1,51 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+define('SPRINGNET_MAIN', __FILE__);
+define('SPRINGNET_URL', drupal_get_path('module', 'springnet'));
+define('SPRINGNET_DIR', getcwd().'/'.SPRINGNET_URL);
+
+define('SPRINGNET_VERSION', '0.1');
+
+/**
+ * @file
+ * Root script that braunches out into the module's subsystem
+ */
+ 
+require 'admin/menu.php';
+require 'front/menu.php';
+
+function springnet_help($path, $arg) {
+	switch($path) {
+		case "admin/help#springnet":
+			return '' . t("Run a Spring network node") . '';
+	}
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function springnet_menu() {
+	$items = array();
+	snadmin_menu($items);
+	snfront_menu($items);
+	return $items;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function springnet_block_info() {
+	$blocks['springnet_bulletin'] = array(
+			// The name that will appear in the block list.
+			'info' => t('Latest Bulletins'),
+			// Default setting.
+			'cache' => DRUPAL_CACHE_PER_ROLE,
+	);
+	return $blocks;
+}
+
+
+
+
