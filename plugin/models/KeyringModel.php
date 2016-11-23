@@ -1,21 +1,21 @@
 <?php
-class Keyring_Model {
+class KeyringModel {
 	private $table;
 
 	public function __construct() {
-		$this->table = sn_certificates;
+		$this->table = 'sn_certificates';
 	}
 
-	public function get_node_public_key() {
+	public function getNodePublicKey() {
 		return db_select($this->table, 'c')
 					->fields('c', array('armor'))
 					->condition('owned', 1, '=')
 					->condition('keyid', 'private', '=')
 					->execute()
-					->fetchAssoc();
+					->fetchField();
 		}
 
-	public function get_node_private_key() {
+	public function getNodePrivateKey() {
 		if(!user_access('administer site configuration')) {
 			return false;
 		}
@@ -27,7 +27,7 @@ class Keyring_Model {
 					->fetchField();
 	}
 
-	public function get_node_certificate() {
+	public function getNodeCertificate() {
 		return db_select($this->table, 'c')
 					->fields('c')
 					->condition('owned', 1, '=')
@@ -36,7 +36,7 @@ class Keyring_Model {
 					->fetchAssoc();
 	}
 
-	public function get_node_keyid() {
+	public function getNodeKeyid() {
 		return db_select($this->table, 'c')
 					->fields('c',array('keyid'))
 					->condition('owned', 1, '=')
@@ -45,19 +45,19 @@ class Keyring_Model {
 					->fetchField();
 	}
 
-	public function set_node_certificate($keyid, $email, $sigs, $armor) {
-		$name = get_option('node_uri');
-		return $this->set_certificate($keyid, $name, $email, $sigs,
+	public function setNodeCertificate($keyid, $email, $sigs, $armor) {
+		$name = variable_get('springnet_node_uri', '');
+		return $this->setCertificate($keyid, $name, $email, $sigs,
 				$armor,'owned');
 	}
 
-	public function set_node_private($armor) {
+	public function setNodePrivate($armor) {
 		// is_admin checked inside set_certificate for 'private'
-		return $this->set_certificate('private', 'private', 'private', array(),
+		return $this->setCertificate('private', 'private', 'private', array(),
 				$armor, 'owned');
 	}
 
-	public function reset_node_keys() {
+	public function resetNodeKeys() {
 		if(!user_access('administer site configuration')) {
 			return false;
 		}
@@ -67,7 +67,7 @@ class Keyring_Model {
 						->execute();
 	}
 
-	public function set_certificate($keyid, $name, $email, $sigs,
+	public function setCertificate($keyid, $name, $email, $sigs,
 			$armor, $status = 'other')
 	{
 		if('private' == $keyid) {
@@ -79,7 +79,7 @@ class Keyring_Model {
 		$owned = $status == 'owned' ? 1 : 0;
 		$sigtext = implode(',', $sigs);
 
-		if(!$this->get_uid_name($keyid)) {
+		if(!$this->getUidName($keyid)) {
 			return db_insert($this->table)
 							->fields(array(
 								'keyid' => $keyid,
@@ -103,7 +103,7 @@ class Keyring_Model {
 
 	}
 
-	public function get_certificate($keyid) {
+	public function getCertificate($keyid) {
 		if('private' == $keyid) {
 			return null;
 		}
@@ -115,7 +115,7 @@ class Keyring_Model {
 							->fetchAssoc();
 	}
 
-	public function remove_certificate($keyid) {
+	public function removeCertificate($keyid) {
 		if(!user_access('administer site configuration') || !$keyid || 'private' == $keyid) {
 			return false;
 		}
@@ -125,20 +125,20 @@ class Keyring_Model {
 						->execute();
 	}
 
-	public function get_key($keyid) {
-		$row = $this->get_certificate($keyid);
-		
+	public function getKey($keyid) {
+		$row = $this->getCertificate($keyid);
+
 		if(!$row) {
 			return false;
 		}
-		
-		return $row['keyid'];
+
+		return $row['armor'];
 	}
 
-	public function get_resolved_certificate($keyid) {
-		$node_id = $this->get_node_keyid();
+	public function getResolvedCertificate($keyid) {
+		$node_id = $this->getNodeKeyid();
 
-		$key = $this->get_certificate($keyid);
+		$key = $this->getCertificate($keyid);
 
 		if(!$key) {
 			return null;
@@ -148,7 +148,7 @@ class Keyring_Model {
 		$sigs = array();
 		$signed = false;
 		foreach($list as $id) {
-			$name = $this->get_uid_name($id);
+			$name = $this->getUidName($id);
 			$name = $name != null ? $name : 'unknown';
 			if($id == $node_id) {
 				$signed = true;
@@ -164,47 +164,48 @@ class Keyring_Model {
 		return $key;
 	}
 
-	public function get_uid_list($page, $limit = 10) {
+	public function getUidList($page, $limit = 10) {
 		$page = $page < 1 ? 0 : $page - 1;
 		$limit = $limit < 1 ? 1 : $limit;
 
 		$from = $page * $limit;
-		
-		return db_select($this->table,'c')
+
+		$q = db_select($this->table,'c')
 					->fields('c', array(
 							'keyid','uidname','uidemail'							
 					))
 					->condition('keyid','private','!=')
 					->orderBy('uidname')
-					->range($from, $limit)
-					->execute()
-					->fetchAllAssoc('keyid');
+					->range($from, $limit);
+
+		return $q->execute()
+					->fetchAllAssoc('uidname');
 	}
 
-	public function get_uid_name($keyid) {
+	public function getUidName($keyid) {
 		if('private' == $keyid) {
 			return false;
 		}
 		
 		return db_select($this->table, 'c')
-							->fields(array('uidname'))
+							->fields('c', array('uidname'))
 							->condition('keyid', $keyid, '=')
 							->execute()
 							->fetchField();
 	}
 
-	public function perform_pull($uri) {
-/*		
+	public function performPull($uri) {
+		
 		if(substr($uri, 0, 9) != 'spring://') {
 			$uri = "spring://$uri";
 		}
 
-		require_once SPRINGNET_DIR.'/plugin/models/class-http-service.php';
-		$service = new HTTP_Service();
-		$keyid = $this->get_node_keyid();
+		require_once SPRINGNET_DIR.'/plugin/models/HttpService.php';
+		$service = new HttpService();
+
+		$keyid = $this->getNodeKeyid();
 		try {
-				
-			$node = $service->dvsp_resolve($uri);
+			$node = $service->dvspResolve($uri);
 				
 			if(!$node || !isset($node[0])) {
 				return false;
@@ -212,7 +213,7 @@ class Keyring_Model {
 			$node = $node[0];
 			$message = SpringDvs\Message::fromStr("service $uri/cert/pull/$keyid");
 				
-			$response = $service->dvsp_request($node->host(), $message);
+			$response = $service->dvspRequest($node->host(), $message);
 			if($response->content()->code() != \SpringDvs\ProtocolResponse::Ok) {
 				return false;
 			}
@@ -223,34 +224,36 @@ class Keyring_Model {
 		} catch(Exception $e) {
 			return false;
 		}
-*/
+
 	}
 
-	public function has_private_key() {
-		if(!$this->get_node_private_key()) {
+	public function hasPrivateKey() {
+		if(!$this->getNodePrivateKey()) {
 			return false;
 		}
 		return true;
 	}
 
-	public function has_certificate() {
+	public function hasCertificate() {
 		
 		if(!db_select($this->table,'c')
 						->fields('c',array('certid'))
-						->condition('keyid','private', '='))
+						->condition('keyid','private', '=')
+						->execute()
+						->fetchField())
 			return false; 
 
 		return true;
 	}
 
-	public function get_certificate_count() {
+	public function getCertificateCount() {
 		$count = db_select($this->table, 'c')
 						->fields('c')
 						->countQuery()
 						->execute()
 						->fetchField();
 		
-		if($this->has_private_key()) {
+		if($this->hasPrivateKey()) {
 			$count--;
 		}
 

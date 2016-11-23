@@ -1,0 +1,63 @@
+table.snetb-explorer {
+	margin-bottom: 10px;
+	border-width: 0px;
+}
+table.snetb-explorer td {
+	padding: 0px;
+}
+
+div.snetb-explorer h2.tabs {
+	font-family: sans-serif;
+	line-height: inherit;
+	display: block;
+	overflow: auto;
+	margin-bottom: 0px;
+}
+div.snetb-explorer div.tab-button {
+	font-size: 1.2em;
+	margin-left: 0.5em;
+	font-weight: bold;
+	float: left;
+	padding: 5px;
+	line-height: 16px;
+	font-size: 14px;
+
+	border-right: 1px solid grey;
+}
+
+div.snetb-explorer div.tab-button-active a {
+	color: black;
+}
+
+div.snetb-explorer table.listing {
+	border-width: 0px;
+	border-top: 1px solid grey;
+	background: transparent;
+	margin: 0px;
+}
+
+div.snetb-explorer table.listing td {
+	padding: 0.5em;
+}
+
+div.snetb-explorer table.listing tbody,
+div.snetb-explorer table.listing tr,
+div.snetb-explorer table.listing td {
+	border: none;
+}
+
+div.snetb-explorer table.listing tr.detail {
+	display: none;
+}
+div.snetb-explorer table.listing td a.title-link {
+	font-size: 1.5em;
+}
+div.snetb-explorer table.listing td a.node-name {
+	float: right;
+	font-family: monospace;
+	cursor: pointer;
+}
+
+
+
+

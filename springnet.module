@@ -1,24 +1,35 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-define('SPRINGNET_MAIN', __FILE__);
-define('SPRINGNET_URL', drupal_get_path('module', 'springnet'));
-define('SPRINGNET_DIR', getcwd().'/'.SPRINGNET_URL);
-
-define('SPRINGNET_VERSION', '0.1');
-
 /**
  * @file
  * Root script that braunches out into the module's subsystem
  */
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+define('SPRINGNET_MAIN', __FILE__);
+define('SPRINGNET_URL', drupal_get_path('module', 'springnet'));
+define('SPRINGNET_DIR', getcwd().'/'.SPRINGNET_URL);
+
+define('SPRINGNET_VERSION', '0.1.0');
+
+require_once SPRINGNET_DIR.'/autoload.php';
+
  
-require 'admin/menu.php';
-require 'front/menu.php';
+require_once SPRINGNET_DIR.'/plugin/admin/forms.php';
+require_once SPRINGNET_DIR.'/plugin/front/service.php';
+
+require_once SPRINGNET_DIR.'/plugin/models/ModuleHandler.php';
+require_once SPRINGNET_DIR.'/plugin/models/NotificationHandler.php';
+require_once SPRINGNET_DIR.'/plugin/models/RepoHandler.php';
+global $_snetrepo;
+$_snetrepo = new RepoHandler();
+
 
 function springnet_help($path, $arg) {
 	switch($path) {
 		case "admin/help#springnet":
-			return '' . t("Run a Spring network node") . '';
+			return '' . t("Please see user guide: http://docs.spring-dvs.org") . '';
 	}
 }
 
@@ -27,25 +38,86 @@ function springnet_help($path, $arg) {
  * Implements hook_menu().
  */
 function springnet_menu() {
+	require_once SPRINGNET_DIR.'/plugin/admin/menu.php';
+	require_once SPRINGNET_DIR.'/plugin/front/menu.php';
 	$items = array();
 	snadmin_menu($items);
-	snfront_menu($items);
+	snfront_menu($items);	
 	return $items;
 }
+
+/**
+ * Implements hook_node_info()
+ */
+function springnet_node_info() {
+	$items = array();
+	foreach(ModuleHandler::listPaths('install.php') as $mod => $path) {
+		include_once $path;
+		$ret = module_invoke( 'springnet_netserv_'.$mod, 'node_info');
+		if(!$ret) continue;
+		$items = array_merge($items, $ret);
+	}
+	return $items;
+}
+
 
 /**
  * Implements hook_block_info().
  */
 function springnet_block_info() {
-	$blocks['springnet_bulletin'] = array(
-			// The name that will appear in the block list.
-			'info' => t('Latest Bulletins'),
-			// Default setting.
-			'cache' => DRUPAL_CACHE_PER_ROLE,
-	);
+	$blocks = array();
+	foreach(ModuleHandler::listPaths('install.php') as $mod => $path) {
+		include_once $path;
+		$ret = module_invoke( 'springnet_netserv_'.$mod, 'block_info');
+		if(!$ret) continue;
+		$blocks = array_merge($blocks, $ret);
+	}
 	return $blocks;
 }
 
+function springnet_block_view($delta = '') {
+	$track = explode("_", $delta, 3);
+	
+	if(count($track) != 3) return array();
+	
+	$mod = $track[1];
+	$block = $track[2];
+	$res = ModuleHandler::resourcePath($track[1], 'mod.php');
+	if(!$res) return array();
+	
+	include_once $res;
+	return module_invoke( 'springnet_netserv_'.$mod.'_'.$track[2], 'block_view');
+}
 
 
+function springnet_block_configure($delta = '') {
+	$track = explode("_", $delta, 3);
+	
+	if(count($track) != 3) return array();
+	
+	$mod = $track[1];
+	$block = $track[2];
+	$res = ModuleHandler::resourcePath($track[1], 'mod.php');
+	if(!$res) return array();
+	
+	include_once $res;
+	return module_invoke( 'springnet_netserv_'.$mod.'_'.$track[2], 'block_configure');
+}
+
+function springnet_block_save($delta = '', $edit = array()) {
+	$track = explode("_", $delta, 3);
+
+	if(count($track) != 3) return array();
+
+	$mod = $track[1];
+	$block = $track[2];
+	$res = ModuleHandler::resourcePath($track[1], 'mod.php');
+	if(!$res) return array();
+
+	include_once $res;
+	module_invoke( 'springnet_netserv_'.$mod.'_'.$track[2], 'block_save', $edit);
+}
+foreach(ModuleHandler::listPaths('mod.php') as $path) {
+	include_once $path;
+}
 

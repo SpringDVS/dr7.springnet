@@ -1,19 +1,6 @@
 <?php 
 
-/*
- * +----------+--------------+------+-----+---------+----------------+
-| Field    | Type         | Null | Key | Default | Extra          |
-+----------+--------------+------+-----+---------+----------------+
-| certid   | mediumint(9) | NO   | PRI | NULL    | auto_increment |
-| keyid    | varchar(32)  | NO   | UNI | NULL    |                |
-| uidname  | varchar(255) | NO   |     | NULL    |                |
-| uidemail | varchar(255) | NO   |     | NULL    |                |
-| sigs     | text         | YES  |     | NULL    |                |
-| armor    | text         | NO   |     | NULL    |                |
-| owned    | tinyint(1)   | NO   |     | 0       |                |
-+----------+--------------+------+-----+---------+----------------+
 
- */
 function springnet_schema() {
 	
 	$schema['sn_certificates'] = array(
@@ -61,14 +48,182 @@ function springnet_schema() {
 			)
 		),
 
-		'unique_keys' => array(
-			'keyid' => 'keyid'	
+		'unique keys' => array(
+			'keyid' => array('keyid'),	
 		),
 
-		'primary_key' => array(
+		'primary key' => array(
 			'certid'
 		)
 	);
 	
+	$schema['sn_repo'] = array(
+			'description' => 'SpringNet Data Repository',
+			'fields' => array(
+					'repo_id' => array(
+							'description' => 'Repository datum ID',
+							'type' => 'serial',
+							'unsigned' => true,
+							'not null' => true,
+					),
+					'repo_tag' => array(
+							'description' => 'The Tag name for the repo',
+							'type' => 'varchar',
+							'length' => 64,
+							'not null' => true,
+					),
+					'repo_timestamp' => array(
+							'description' => 'The time the datum was created',
+							'mysql_type' => 'timestamp',
+							'not null' => true,
+					),
+					'repo_notif' => array(
+							'description' => 'Any associated notification',
+							'type' => 'int',
+							'length' => 'medium',
+					),
+					'repo_data' => array(
+							'description' => 'The data held in repo slot',
+							'type' => 'text',
+							'size' => 'medium',
+					),
+			),
+	
+			'indexes' => array(
+					'repo_tag_id' => array('repo_tag', 'repo_id'),
+			),
+	
+			'primary key' => array(
+					'repo_id'
+			)
+	);
+	
+	$schema['sn_notifications'] = array(
+			'description' => 'SpringNet Notification System',
+			'fields' => array(
+					'notif_id' => array(
+							'description' => 'Unique ID of the notifacation',
+							'type' => 'serial',
+							'unsigned' => true,
+							'not null' => true,
+					),
+					'notif_title' => array(
+							'description' => 'Title message',
+							'type' => 'varchar',
+							'length' => 128,
+							'not null' => true,
+					),
+					'notif_action' => array(
+							'description' => 'The URI action to follow',
+							'type' => 'varchar',
+							'length' => 320,
+							'not null' => true,
+					),
+					'notif_source' => array(
+							'description' => 'The source module if notification',
+							'type' => 'varchar',
+							'length' => 64,
+							'not null' => true,
+					),
+					
+					'notif_active' => array(
+							'description' => 'Active state of notification',
+							'type' => 'int',
+							'length' => 'tiny',
+							'not null' => true,
+					),
+					'notif_description' => array(
+							'description' => 'The message describing action',
+							'type' => 'text',
+					),
+			),
+	
+			'primary key' => array(
+					'notif_id'
+			)
+	);
 	return $schema;
+}
+
+function springnet_install() {
+	// Really this should be in the bulletin module
+	node_types_rebuild();
+	$types = node_type_get_types();
+	
+	$field = field_info_field('field_tags');
+	$instance = field_info_instance('node', 'field_tags', $types['snbulletin']->type);
+	if (empty($instance)) {
+		$help = st('Enter a comma-separated list of words to describe your bulletin');
+		$instance = array(
+				'field_name' => 'field_tags',
+				'entity_type' => 'node',
+				'bundle' => $types['snbulletin']->type,
+				'label' => 'Tags',
+				'widget' => array('type' => 'text_textarea_with_summary'),
+				'description' => $help,
+				'widget' => array(
+						'type' => 'taxonomy_autocomplete',
+						'weight' => -4,
+				),
+				'display' => array(
+						'default' => array(
+								'type' => 'taxonomy_term_reference_link',
+								'weight' => 10,
+						),
+						'teaser' => array(
+								'type' => 'taxonomy_term_reference_link',
+								'weight' => 10,
+						),
+				),
+		);
+		$instance = field_create_instance($instance);
+	}
+	
+	
+	$field = field_info_field('field_snbulletin_category');
+	if(!$field) {
+		$field = array(
+				'field_name' => 'field_snbulletin_category',
+				'type' => 'taxonomy_term_reference',
+				// Set cardinality to unlimited for tagging.
+				'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+				'settings' => array(
+						'allowed_values' => array(
+								array(
+										'vocabulary' => 'tags',
+										'parent' => 0,
+								),
+						),
+				),
+		);
+		field_create_field($field);
+	}
+	
+	$instance = field_info_instance('node', 'field_snbulletin_category', $types['snbulletin']->type);
+	if (empty($instance)) {
+		$help = st('Enter a comma-separated list of categories for the bulletin');
+		$instance = array(
+				'field_name' => 'field_snbulletin_category',
+				'entity_type' => 'node',
+				'label' => 'Categories',
+				'bundle' => $types['snbulletin']->type,
+				'description' => $help,
+				'widget' => array(
+						'type' => 'taxonomy_autocomplete',
+						'weight' => -4,
+				),
+				'display' => array(
+						'default' => array(
+								'type' => 'taxonomy_term_reference_link',
+								'weight' => 10,
+						),
+						'teaser' => array(
+								'type' => 'taxonomy_term_reference_link',
+								'weight' => 10,
+						),
+				),
+		);
+		field_create_instance($instance);
+	}
+	node_add_body_field($types['snbulletin']);
 }

@@ -1,0 +1,19 @@
+@CHARSET "UTF-8";
+
+textarea.springnet-key-display {
+	font-family: monospace;
+}
+
+div.springnet-risky-message {
+	font-size: 0.9em;
+	color: #BF0000;
+	font-weight: bold;
+}
+
+table.springnet-config-overview th {
+	width: 150px;
+}
+
+table.springnet-config-overview td {
+	width: 250px;
+}

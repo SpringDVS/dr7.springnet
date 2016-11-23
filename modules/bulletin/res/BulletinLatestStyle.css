@@ -1,0 +1,82 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+.sdvs-loader {
+    float: right;
+    display: none;
+}
+.spring-bulletin {
+    
+}
+.spring-bulletin a.reset {
+    float: right;
+}
+.spring-bulletin table.main {
+    
+}
+.spring-bulletin table.main tbody {
+	border-width: 0px;
+}
+.spring-bulletin table.main td {
+	padding: 0px;
+}
+.spring-bulletin td.node-uri {
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 1.1em;
+}
+
+.spring-bulletin tr.profile-view {
+    background-color: #DFDFDF;
+    display: none;
+}
+.spring-bulletin .profile-block {
+    padding: 10px;
+}
+
+.spring-bulletin .profile-block a.control {
+    font-size: 12px;
+}
+.spring-bulletin .profile-block h3 {
+    margin-bottom: 5px;
+}
+.spring-bulletin table.inner {
+	border-collapse: collapse;
+	margin: 0px;
+	margin-left: 15px;
+	width: 97%;
+}
+.spring-bulletin table.inner tbody {
+	border-width: 0px;
+}
+.spring-bulletin table.inner,
+.spring-bulletin table.inner tr,
+.spring-bulletin table.inner td {
+	border-width: 0px;
+	border-collapse: collapse;
+	padding: 3px;
+}
+
+.spring-bulletin table.inner a.title {
+	font-size: 16px;
+	font-weight: bold;
+}
+.spring-bulletin table.inner td.details {
+	font-size: 12px;
+}
+
+.spring-bulletin span.uid {
+	float: right;
+	font-family: monospaced;
+	font-size: 10px;
+}
+.spring-bulletin table.inner td.separator {
+	padding-bottom: 15px;
+}
+
+.spring-bulletin table.inner div.uri {
+	font-size: 12px;
+	margin-top: 5px;
+}

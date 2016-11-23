@@ -23,13 +23,29 @@
 				loading_hide();
 				if(res.hostname == "invalid") {
 					display_error("GeoNetwork cannot be resolved; does not exist.")
-					$('#edit-springnet-geonet-hostname').val('');
-					$('#edit-springnet-geonet-address').val('');
-					$('#edit-springnet-geonet-resource').val('');
+					$('input[name=springnet_geonet_hostname]').val('');
+					$('#edit-springnet-geonet-hostname-vis').val('');
+					
+					$('input[name=springnet_geonet_address]').val('');
+					$('#edit-springnet-geonet-address-vis').val('');
+
+					$('input[name=springnet_geonet_resource]').val('');
+					$('#edit-springnet-geonet-resource-vis').val('');
 				} else {
-					$('#edit-springnet-geonet-hostname').val(res.hostname);				
-					$('#edit-springnet-geonet-address').val(res.address);
-					$('#edit-springnet-geonet-resource').val(res.resource);
+					$('input[name=springnet_geonet_hostname]').val(res.hostname);				
+					$('#edit-springnet-geonet-hostname-vis').val(res.hostname);
+					
+					$('input[name=springnet_geonet_address]').val(res.address);
+					$('#edit-springnet-geonet-address-vis').val(res.address);
+					
+					$('input[name=springnet_geonet_resource]').val(res.resource);
+					$('#edit-springnet-geonet-resource-vis').val(res.resource);
+					
+					var uri = $('#edit-springnet-node-springname').val() + '.'
+							  + $('#edit-springnet-geonet-name').val() + '.uk';
+
+					$('input[name=springnet_node_uri]').val(uri);
+					$('#edit-springnet-node-uri-vis').text(uri);
 				}
 			});
 			return false;

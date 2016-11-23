@@ -1,0 +1,35 @@
+@CHARSET "UTF-8";
+
+.snet-bulletin-widget div.popup-profile-window {
+	border: 1px solid #6F6F6F;
+	border-radius: 3px;
+	background-color: #DFDFDF;
+	padding: 5px;
+	width: 300px;
+}
+
+@media (max-width: 475px) {
+	.snet-bulletin-widget div.popup-profile-container,
+	.snet-bulletin-widget div.popup-profile-window {
+		position: absolute;
+		width: 96%;
+		margin-left: 2%;
+		left: 0 !important;
+		
+	}
+}
+
+.snet-bulletin-widget div.popup-profile-window h3 {
+	margin-top: 5px;
+	margin-bottom: 5px
+}
+
+.snet-bulletin-widget .arrow-up {
+  position: absolute;
+  width: 0; 
+  height: 0; 
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  
+  border-bottom: 5px solid #6F6F6F;
+}
