@@ -1,7 +1,7 @@
 name = SpringNet
 description = Plugin for running a Spring network node off the back of a Drupal Installation and enable interaction with the network
 core = 7.x
-version = 7.x-0.1.0
+version = 7.x-0.2.0
 project = "springnet"
 
 configure = admin/config/services/springnet
