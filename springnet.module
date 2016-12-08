@@ -11,7 +11,7 @@ define('SPRINGNET_MAIN', __FILE__);
 define('SPRINGNET_URL', drupal_get_path('module', 'springnet'));
 define('SPRINGNET_DIR', getcwd().'/'.SPRINGNET_URL);
 
-define('SPRINGNET_VERSION', '0.1.0');
+define('SPRINGNET_VERSION', '0.1.1');
 
 require_once SPRINGNET_DIR.'/autoload.php';
 
