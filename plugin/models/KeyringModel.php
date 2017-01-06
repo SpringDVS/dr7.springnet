@@ -10,7 +10,7 @@ class KeyringModel {
 		return db_select($this->table, 'c')
 					->fields('c', array('armor'))
 					->condition('owned', 1, '=')
-					->condition('keyid', 'private', '=')
+					->condition('keyid', 'private', '!=')
 					->execute()
 					->fetchField();
 		}
